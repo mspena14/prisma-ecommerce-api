@@ -13,8 +13,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id String @default(autoincrement()) @id
-  email String @unique
-  password String 
+model Users {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  orders    Orders[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Carts     Carts?
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Products {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  CartItems   CartItems[]
+}
+
+model Carts {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  user      Users      @relation(fields: [userId], references: [id])
+  items     CartItems[]
+}
+
+model CartItems {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  cart      Carts    @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Products @relation(fields: [productId], references: [id])
+  quantity  Int
+}
+
+model Orders {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  user        Users        @relation(fields: [userId], references: [id])
+  totalAmount Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
